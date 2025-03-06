@@ -6,10 +6,10 @@ import Hero from "./components/Hero";
 import ProductList from "./components/ProductList";
 import Footer from "./components/Footer";
 import CardDetail from "./components/CardDetail";
-import Login from './components/Login';
 import PostAdForm from "./components/PostAddForm";
 import UserProfile from './pages/UserProfile';
 import UserPosts from "./components/UserPosts";
+import LoginNew from "./components/LoginNew";
 
 function App() {
   return (
@@ -30,12 +30,11 @@ function App() {
       <Routes>
         
         <Route path="/" element={<ProductList />} />
-        <Route path='/login' element={<Login></Login>}/>
         <Route path="/detail" element={<CardDetail/>} />
         <Route path="/post-ad" element={<PostAdForm/>} />
         <Route path="/user-profile" element={<UserProfile/>} />
         <Route path="/my-posts" element={<UserPosts/>} />
-
+        <Route path='/loginNew' element={<LoginNew/>} />
       </Routes>
       <Footer />
     </div>

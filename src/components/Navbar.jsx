@@ -1,9 +1,12 @@
-import { useState, useEffect,useRef } from 'react';
+import { useState, useEffect,useRef, useContext } from 'react';
 import { Search, Plus, ChevronDown, Heart, User, Menu, X, LogOut } from 'lucide-react';
 import LoginModal from './auth/LoginModal';
 import SignupModal from './auth/SignupModal';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import AppContext from '../context/AppContext';
+import apiRequest from '../utils/ApiRequest';
+import { showToast } from './ToastComponent';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,6 +21,7 @@ const Navbar = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(true);
   const dropdownRef = useRef(null);
 
+
   const locations = ['PCCOE','DYP','COEP'];
 
   const handleLocationSelect = (loc) => {
@@ -25,11 +29,13 @@ const Navbar = () => {
     setIsLocationDropdownOpen(false);
   };
 
+  const {login,setLogin} = useContext(AppContext);
+
   // Add useEffect to check login status
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
-  }, []);
+  }, [login]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -147,30 +153,40 @@ const Navbar = () => {
     }
   };
   
+  const checkUserDetails = async()=>{
+
+      let url = String(process.env.REACT_APP_BACKEND) ;
+      url+= "/api/user/checkUser";
+
+      const {resStatus,data,error} = await apiRequest(url,'GET',{
+        'Authorization':`Bearer ${localStorage.getItem('token')}`
+      });
+
+      if(resStatus)
+        return true;
+      else{
+        showToast(error.message,'error');
+        return false;
+      }
+  }
 
   // Modified sell button handler
-  const handleSellClick = (e) => {
+  const handleSellClick = async(e) => {
     e.preventDefault();
     if (!isLoggedIn) {
       setIsLoginModalOpen(true);
     } else {
-      navigate('/post-ad');
+      if(await checkUserDetails())
+        navigate('/post-ad');
     }
   };
 
   const handleLogout = () => {
+    setLogin(false);
     localStorage.removeItem('token');
     setIsLoggedIn(false);
     navigate('/');
-    toast.success('Successfully logged out!', {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    showToast('Successfully logged out','success');
   };
 
   return (

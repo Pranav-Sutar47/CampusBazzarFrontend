@@ -1,7 +1,75 @@
 import { X } from 'lucide-react';
+import { auth, googleProvider } from "../../firebase";
+import { signInWithPopup } from "firebase/auth";
+import axios from "axios";
+import { useState, useEffect, useContext } from 'react';
+import {showToast} from '../ToastComponent';
+import Loader from '../Loader';
+import AppContext from '../../context/AppContext';
 
 const LoginModal = ({ isOpen, onClose, onSignupClick, error, loading, handleLogin }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const slides = [
+    {
+      image: "https://statics.olx.in/external/base/img/loginEntryPointPost.webp",
+      text: "Help us become one of the safest places to buy and sell"
+    },
+    {
+      image: "https://statics.olx.in/external/base/img/loginEntryPointFavorite.webp",
+      text: "Close deals from the comfort of your home"
+    },
+    {
+      image: "https://statics.olx.in/external/base/img/loginEntryPointChat.webp",
+      text: "Keep all your favourites in one place"
+    }
+  ];
+
+  const [load,setLoad] = useState(false);
+
+  const {setLogin} = useContext(AppContext);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(timer);
+  }, []);
+
   if (!isOpen) return null;
+
+  const handleGoogleLogin = async () => {
+    try {
+      setLoad(true);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Send user data to backend
+      const response = await axios.post("http://localhost:5000/api/auth/google", {
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+      });
+
+      console.log(response.data);
+      
+      if(response.data.status){
+        setLogin(true);
+        localStorage.setItem('token',response.data.token);
+        showToast(response.data.message,'success');
+        onClose();
+      }else{
+        showToast(response.data.message,'error');
+      }
+    } catch (error) {
+      showToast("Something went wrong","error");
+      console.error("Google Sign-in Error:", error);
+    }
+    finally{
+      setLoad(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -12,43 +80,49 @@ const LoginModal = ({ isOpen, onClose, onSignupClick, error, loading, handleLogi
             <X size={24} className="text-gray-500 hover:text-gray-700" />
           </button>
         </div>
-        <form className="space-y-4" onSubmit={handleLogin}>
-          {error && <div className="text-red-500 text-sm">{error}</div>}
-          <div>
-            <input
-              name="email"
-              type="email"
-              placeholder="Email"
-              className="w-full border-2 rounded p-2 outline-none focus:border-[#23e5db]"
-              required
-            />
-          </div>
-          <div>
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              className="w-full border-2 rounded p-2 outline-none focus:border-[#23e5db]"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-[#002f34] text-white py-2 rounded hover:bg-[#003f44] disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : 'Login'}
-          </button>
-        </form>
-        <div className="mt-4 text-center text-gray-600">
-          Don't have an account?{" "}
-          <button
-            className="text-[#3a77ff] hover:underline font-semibold"
-            onClick={onSignupClick}
-          >
-            Sign Up
-          </button>
-        </div>
+
+        <div className="relative mb-6">
+  {/* Image Container */}
+  <div className="h-48 overflow-hidden rounded-full mb-4 relative">
+    {slides.map((slide, index) => (
+      <div
+        key={index}
+        className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
+          index === currentSlide ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <img
+          src={slide.image}
+          alt={slide.text}
+          className="w-full h-full object-contain"
+        />
+      </div>
+    ))}
+  </div>
+
+  {/* Text */}
+  <div className="text-center mt-4"> {/* Added margin-top for spacing */}
+    <p className="text-gray-700 font-semibold">{slides[currentSlide].text}</p>
+  </div>
+</div>
+
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={load}
+          className="w-full bg-white text-gray-700 p-3 rounded-lg hover:bg-gray-100 transition font-semibold flex items-center justify-center gap-2 border border-gray-300"
+        >
+          {
+            !load &&
+          <img
+            src="https://www.google.com/favicon.ico"
+            alt="Google"
+            className="w-5 h-5"
+          />
+          }
+          {load ? <Loader/> : 'Login with Google' }
+        </button>
       </div>
     </div>
   );

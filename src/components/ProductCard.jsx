@@ -84,71 +84,7 @@ const ProductCard = ({
   };
   
 
-  // const handleLogin = async (email, password) => {
-  //   setLoading(true);
-  //   setError('');
-    
-  //   try {
-  //     const response = await fetch('https://campusbazzarbackend.onrender.com/api/users/login', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ email, password }),
-  //     });
-      
-  //     const data = await response.json();
-      
-  //     if (response.ok) {
-  //       localStorage.setItem('token', data.token);
-  //       localStorage.setItem('user', JSON.stringify(data.user));
-  //       setIsLoginModalOpen(false);
-  //       toast.success('Logged in successfully!');
-        
-  //       // Try to like the post immediately after successful login
-  //       handleLikeClick({ stopPropagation: () => {} });
-  //     } else {
-  //       setError(data.message || 'Login failed. Please try again.');
-  //     }
-  //   } catch (error) {
-  //     setError('Something went wrong. Please try again.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
-  // const handleLogin = async (email, password) => {
-  //   setLoading(true);
-  //   setError('');
-    
-  //   try {
-  //     const response = await fetch('https://campusbazzarbackend.onrender.com/api/user/login', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ email, password }),
-  //     });
-  
-  //     const data = await response.json();
-  
-  //     if (response.ok) {
-  //       localStorage.setItem('token', data.token);
-  //       localStorage.setItem('user', JSON.stringify(data.user));
-  //       setIsLoginModalOpen(false);
-  //       toast.success('Logged in successfully!');
-  
-  //       // Attempt to like the post after login
-  //       handleLikeClick({ stopPropagation: () => {} });
-  //     } else {
-  //       setError(data.message || 'Login failed. Please try again.');
-  //     }
-  //   } catch (error) {
-  //     setError('Something went wrong. Please try again.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleLogin = async (e) => {
       e.preventDefault();
       setError('');
@@ -251,7 +187,7 @@ const ProductCard = ({
           </p>
         </div>
         <div className="px-3 pb-3 mt-auto flex justify-between text-xs text-gray-500">
-          <span className="uppercase truncate max-w-[60%]">{userId.address}</span>
+          <span className="uppercase truncate max-w-[60%]">{userId?.address}</span>
           <span className="uppercase">{createdAt}</span>
         </div>
       </div>
@@ -269,7 +205,6 @@ const ProductCard = ({
         handleLogin={handleLogin}
       />
 
-      {/* You'll need to implement or import your SignupModal component as well */}
       {isSignupModalOpen && (
         <SignupModal 
           isOpen={isSignupModalOpen}
@@ -284,24 +219,24 @@ const ProductCard = ({
   );
 };
 
-const ProductList = ({ title, products }) => {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      {title && (
-        <h2 className="text-2xl font-bold text-[#002f34] mb-4">
-          {title}
-        </h2>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {products.map((product) => (
-          <ProductCard 
-            key={product._id}
-            {...product}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
+// const ProductList = ({ title, products }) => {
+//   return (
+//     <div className="max-w-7xl mx-auto px-4 py-6">
+//       {title && (
+//         <h2 className="text-2xl font-bold text-[#002f34] mb-4">
+//           {title}
+//         </h2>
+//       )}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//         {products.map((product) => (
+//           <ProductCard 
+//             key={product._id}
+//             {...product}
+//           />
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
 
 export default ProductCard;
