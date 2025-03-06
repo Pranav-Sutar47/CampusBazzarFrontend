@@ -54,7 +54,7 @@ const ProductCard = ({
     setIsLiking(true);
 
     try {
-      const response = await fetch(`https://campusbazzarbackend.onrender.com/api/posts/like/${_id}`, {
+      const response = await fetch(`https://campusbazzarbackend.onrender.com/api/posts/likePost/${_id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
