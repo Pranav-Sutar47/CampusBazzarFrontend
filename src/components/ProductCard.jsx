@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Tag, MapPin, Clock } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import SignupModal from './auth/SignupModal';
 import LoginModal from './auth/LoginModal';
+
+const Tag = () => <span>🏷️</span>;
+const MapPin = () => <span>📍</span>;
+const Clock = () => <span>⏰</span>;
+
 
 const ProductCard = ({ 
   _id, 
