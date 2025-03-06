@@ -45,8 +45,11 @@ const LoginModal = ({ isOpen, onClose, onSignupClick, error, loading, handleLogi
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
+      let url = String(process.env.REACT_APP_BACKEND)
+      url += '/api/auth/google'
+      console.log(url);
       // Send user data to backend
-      const response = await axios.post("http://localhost:5000/api/auth/google", {
+      const response = await axios.post(url, {
         name: user.displayName,
         email: user.email,
         photo: user.photoURL,
