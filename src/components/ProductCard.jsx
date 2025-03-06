@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -27,17 +27,20 @@ const ProductCard = ({
   const [liked, setLiked] = useState(isLiked);
   const [isLiking, setIsLiking] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const cardRef = useRef(null);
 
   useEffect(() => {
     setLiked(isLiked);
   }, [isLiked]);
+
+  // Optimized Date Formatting
+  const formattedDate = useMemo(() => {
+    return new Date(createdAt).toLocaleDateString('en-GB', { 
+      year: '2-digit', 
+      month: '2-digit', 
+      day: '2-digit' 
+    });
+  }, [createdAt]);
 
   const handleCardClick = () => {
     navigate(`/detail`, { state: { images, price, title, createdAt, category, description, likeCount, userId, _id } });
@@ -54,7 +57,7 @@ const ProductCard = ({
     setIsLiking(true);
 
     try {
-      const response = await fetch(`https://campusbazzarbackend.onrender.com/api/posts/likePost/${_id}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/posts/likePost/${_id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -65,13 +68,6 @@ const ProductCard = ({
       if (response.ok) {
         setLiked(true);
         toast.success('Product added to favorites!');
-        let likedItems = JSON.parse(localStorage.getItem('likedItems')) || [];
-        
-        // Check if the item is already liked (avoid duplicates)
-        if (!likedItems.some(item => item._id === _id)) {
-          likedItems.push({ _id, title, price, images });
-          localStorage.setItem('likedItems', JSON.stringify(likedItems));
-        }
       } else {
         const errorData = await response.json();
         toast.error(errorData.message || 'Failed to add to favorites');
@@ -83,171 +79,119 @@ const ProductCard = ({
     }
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await fetch('https://campusbazzarbackend.onrender.com/api/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: e.target.email.value,
-          password: e.target.password.value
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.status) {
-        localStorage.setItem('token', data.token);
-        setIsLoggedIn(true);
-        setIsLoginModalOpen(false);
-        toast.success('Successfully logged in!', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      } else {
-        toast.error(data.message || 'Login failed', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        setError(data.message || 'Login failed');
-      }
-    } catch (err) {
-      toast.error('Something went wrong. Please try again.', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const x = e.clientX - centerX;
-    const y = e.clientY - centerY;
-    // Adjust the rotation strength as needed
-    const rotateX = (-y / rect.height) * 20;
-    const rotateY = (x / rect.width) * 20;
-    setTilt({ x: rotateX, y: rotateY });
-  };
-
-  // Compute dynamic shadow based on tilt
-  const shadowStyle = {
-    boxShadow: `${-tilt.y / 2}px ${tilt.x / 2}px 20px rgba(0,0,0,0.3)`
-  };
-
   return (
     <>
       <motion.div 
         onClick={handleCardClick} 
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => { setIsHovered(false); setTilt({ x: 0, y: 0 }); }}
-        onMouseMove={handleMouseMove}
-        whileHover={{ scale: 1.02 }}
-        ref={cardRef}
-        className="relative flex flex-col rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer bg-white border border-gray-200"
+        whileHover={{ scale: 1.03, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)", y: -3 }}
+        transition={{ duration: 0.3 }}
+        className="relative flex flex-col rounded-xl overflow-hidden shadow-md cursor-pointer bg-white border border-gray-200 transition-transform"
       >
-        {/* New wrapper div for the tilt effect and dynamic shadow */}
-        <div style={{ 
-          transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`, 
-          transition: 'transform 0.1s ease-out',
-          ...shadowStyle
-        }}>
-          <div className="relative aspect-square overflow-hidden bg-gray-50">
-            <motion.img 
-              src={images[0]} 
-              alt={title} 
-              className="w-full h-full object-cover" 
-              animate={{ scale: isHovered ? 1.1 : 1 }}
+        {/* Image Section */}
+        <div className="relative aspect-square overflow-hidden bg-gray-50">
+          <motion.img 
+            src={images[0]} 
+            alt={title} 
+            className="w-full h-full object-cover transition-opacity duration-300 ease-in-out"
+            loading="lazy"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.3 }}
+          />
+
+          {/* Like Button */}
+          <motion.button 
+            onClick={handleLikeClick}
+            disabled={liked || isLiking}
+            whileTap={{ scale: 0.85 }}
+            whileHover={{ scale: 1.1 }}
+            className={`absolute top-3 right-3 p-2 rounded-full ${liked ? 'bg-red-50' : 'bg-white'} shadow-md hover:shadow-lg transition-all duration-200`}
+          >
+            <motion.div 
+              animate={{ scale: liked ? [1, 1.3, 1] : 1 }} 
               transition={{ duration: 0.3 }}
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300"></div>
-            <motion.button 
-              onClick={handleLikeClick}
-              disabled={liked || isLiking}
-              whileTap={{ scale: 0.9 }}
-              className={`absolute top-3 right-3 p-2 rounded-full ${liked ? 'bg-red-50' : 'bg-white'} shadow-md hover:shadow-lg transition-all duration-200`}
             >
-              <Heart 
-                size={18} 
-                className={liked ? "text-red-500 fill-red-500" : "text-gray-700"} 
-                fill={liked ? "currentColor" : "none"}
-              />
-            </motion.button>
-            {isFeatured && (
-              <motion.div 
-                className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-400 text-xs font-bold px-3 py-1 rounded-full text-white shadow-md"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                Featured
-              </motion.div>
-            )}
+              {isLiking ? (
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
+              ) : (
+                <Heart 
+                  size={18} 
+                  className={liked ? "text-red-500 fill-red-500" : "text-gray-700"} 
+                  fill={liked ? "currentColor" : "none"}
+                />
+              )}
+            </motion.div>
+          </motion.button>
+
+          {/* Featured Tag */}
+          {isFeatured && (
+            <motion.div 
+              className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-400 text-xs font-bold px-3 py-1 rounded-full text-white shadow-md"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              Featured
+            </motion.div>
+          )}
+        </div>
+
+        {/* Content Section */}
+        <div className="p-4 flex flex-col flex-grow">
+          <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2">
+            {title}
+          </h3>
+          <div className="flex items-center text-xs text-gray-600">
+            <Tag size={14} className="mr-1.5 text-gray-500" />
+            <span className="capitalize">{category}</span>
           </div>
-          <div className="p-4 flex flex-col flex-grow">
-            <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2">
-              {title}
-            </h3>
-            <div className="flex items-center text-xs text-gray-600">
-              <Tag size={14} className="mr-1.5 text-gray-500" />
-              <span className="capitalize">{category}</span>
+          <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
+            <div className="flex items-center truncate max-w-[60%]">
+              <MapPin size={14} className="mr-1 flex-shrink-0" />
+              <span className="truncate">{userId?.address || 'Not specified'}</span>
             </div>
-            <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
-              <div className="flex items-center truncate max-w-[60%]">
-                <MapPin size={14} className="mr-1 flex-shrink-0" />
-                <span className="truncate">{userId?.address || 'Not specified'}</span>
-              </div>
-              <div className="flex items-center">
-                <Clock size={14} className="mr-1" />
-                <span>{createdAt}</span>
-              </div>
+            <div className="flex items-center">
+              <Clock size={14} className="mr-1" />
+              <span>{formattedDate}</span>
             </div>
           </div>
         </div>
       </motion.div>
-      <LoginModal 
-        isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)}
-        onSignupClick={() => {
-          setIsLoginModalOpen(false);
-          setIsSignupModalOpen(true);
-        }}
-      />
+
+      {/* Modals with Smooth Animations */}
+      {isLoginModalOpen && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.3 }}
+        >
+          <LoginModal 
+            isOpen={isLoginModalOpen} 
+            onClose={() => setIsLoginModalOpen(false)}
+            onSignupClick={() => {
+              setIsLoginModalOpen(false);
+              setIsSignupModalOpen(true);
+            }}
+          />
+        </motion.div>
+      )}
+
       {isSignupModalOpen && (
-        <SignupModal 
-          isOpen={isSignupModalOpen}
-          onClose={() => setIsSignupModalOpen(false)}
-          onLoginClick={() => {
-            setIsSignupModalOpen(false);
-            setIsLoginModalOpen(true);
-          }}
-        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.3 }}
+        >
+          <SignupModal 
+            isOpen={isSignupModalOpen}
+            onClose={() => setIsSignupModalOpen(false)}
+            onLoginClick={() => {
+              setIsSignupModalOpen(false);
+              setIsLoginModalOpen(true);
+            }}
+          />
+        </motion.div>
       )}
     </>
   );
