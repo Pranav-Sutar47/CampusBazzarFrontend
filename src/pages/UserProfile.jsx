@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Spinner from '../components/Spinner';
 
@@ -49,6 +48,8 @@ const UserProfile = () => {
         if (response.ok) {
           setUserInfo(data.user);
           setFormData(data.user);
+          // Save user address to localStorage
+          localStorage.setItem('userAddress', data.user.address || '');
         } else {
           setError(data.message || 'Failed to fetch user information');
         }
@@ -189,6 +190,8 @@ const UserProfile = () => {
       const data = await response.json();
       if (response.ok) {
         setUserInfo({...userInfo, ...formData});
+        // Update address in localStorage when profile is updated
+        localStorage.setItem('userAddress', formData.address || '');
         setUpdateMessage('Profile updated successfully!');
         setTimeout(() => setEditMode(false), 1500);
       } else {

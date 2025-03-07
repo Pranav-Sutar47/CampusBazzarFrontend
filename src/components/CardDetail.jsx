@@ -57,12 +57,13 @@ const CardDetail = () => {
   const fetchRouteData = async () => {
     try {
       let token = localStorage.getItem('token');
+      const buyerAddress = localStorage.getItem('userAddress') || 'PCCOE';
 
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND}/api/search/getPath`,
         {
           sellerAddress: userId?.address,
-          buyerAddress: "PCCOE",
+          buyerAddress: buyerAddress,
         },
         {
           headers: {
@@ -89,7 +90,23 @@ const CardDetail = () => {
     fetchRouteData();
   }, [userId?.address]);
 
-  // Modify the map initialization useEffect
+  // Add a new component for the blurred map
+  const BlurredMap = () => (
+    <div className="relative">
+      <div className="h-[300px] rounded-xl overflow-hidden filter blur-sm bg-gray-200">
+        {/* Placeholder map image or gradient */}
+        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400" />
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="bg-white/90 px-6 py-4 rounded-lg shadow-lg text-center">
+          <p className="text-gray-800 font-semibold mb-2">Login Required</p>
+          <p className="text-sm text-gray-600">Please login to view the route map</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Update the map initialization useEffect
   useEffect(() => {
     if (!routeData || !routeData.route) return;
 
@@ -102,9 +119,10 @@ const CardDetail = () => {
 
       // Add markers for buyer and seller locations
       if (routeData.buyerLocation) {
+        const buyerAddress = localStorage.getItem('userAddress') || 'PCCOE';
         L.marker([routeData.buyerLocation[0], routeData.buyerLocation[1]])
           .addTo(map)
-          .bindPopup("PCCOE (Buyer Location)")
+          .bindPopup(`Buyer Location (${buyerAddress})`)
           .openPopup();
       }
 
@@ -134,26 +152,6 @@ const CardDetail = () => {
         const corner2 = L.latLng(bbox[3], bbox[2]);
         const bounds = L.latLngBounds(corner1, corner2);
         map.fitBounds(bounds, { padding: [50, 50] });
-
-        // Add distance and duration information
-        const segment = routeData.route.features[0].properties.segments[0];
-        if (segment) {
-          const distance = (segment.distance / 1000).toFixed(2); // Convert to km
-          const duration = Math.round(segment.duration); // Duration in minutes
-
-          const routeInfo = L.control({ position: 'bottomleft' });
-          routeInfo.onAdd = function () {
-            const div = L.DomUtil.create('div', 'route-info');
-            div.innerHTML = `
-              <div class="bg-white px-3 py-2 rounded-lg shadow-md text-sm">
-                <p class="font-semibold">Distance: ${distance} km</p>
-                <p class="font-semibold">Duration: ~${duration} min</p>
-              </div>
-            `;
-            return div;
-          };
-          routeInfo.addTo(map);
-        }
       }
 
       // Cleanup function
@@ -200,23 +198,29 @@ const CardDetail = () => {
     exit: { opacity: 0, x: -50 },
   };
 
-  // Update the map section in the render to handle loading and error states
-  const renderMap = () => (
-    <div>
-      <h2 className="text-lg font-bold mb-3">Route from Seller to Buyer</h2>
-      {mapError ? (
-        <div className="h-[300px] rounded-xl bg-gray-100 flex items-center justify-center">
-          <p className="text-red-500">{mapError}</p>
-        </div>
-      ) : !routeData ? (
-        <div className="h-[300px] rounded-xl bg-gray-100 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>
-      ) : (
-        <div id="map" className="h-[300px] rounded-xl overflow-hidden"></div>
-      )}
-    </div>
-  );
+  // Update the renderMap function
+  const renderMap = () => {
+    const isLoggedIn = !!localStorage.getItem('token');
+
+    return (
+      <div>
+        <h2 className="text-lg font-bold mb-3">Route from Seller to Buyer</h2>
+        {!isLoggedIn ? (
+          <BlurredMap />
+        ) : mapError ? (
+          <div className="h-[300px] rounded-xl bg-gray-100 flex items-center justify-center">
+            <p className="text-red-500">{mapError}</p>
+          </div>
+        ) : !routeData ? (
+          <div className="h-[300px] rounded-xl bg-gray-100 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        ) : (
+          <div id="map" className="h-[300px] rounded-xl overflow-hidden"></div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white p-8">
@@ -288,17 +292,14 @@ const CardDetail = () => {
 
         {/* Right Side - Map with Seller Information below */}
         <motion.div 
-          className="bg-white shadow-lg rounded-xl p-4 border border-gray-200 space-y-4"
+          className="bg-white shadow-lg rounded-xl p-4 pb-2 border border-gray-200 space-y-4"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          {/* Map Section */}
-          {renderMap()}
-
           {/* Seller Information - Moved from product details */}
           <motion.div
-            className="border-t border-gray-200 pt-4"
+            className="border-b border-gray-200 pt-4 "
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.5 }}
@@ -322,6 +323,12 @@ const CardDetail = () => {
               </p>
             </div>
           </motion.div>
+          
+          {/* Map Section */}
+          <div className="" ></div>
+          {renderMap()}
+
+        
         </motion.div>
       </div>
 
@@ -333,21 +340,27 @@ const CardDetail = () => {
             <motion.div
               className="flex transition-all duration-300 ease-in-out"
               style={{
-                transform: `translateX(-${currentSlide * (100 / 3)}%)`,
+                transform: `translateX(-${currentSlide * (100 / Math.min(3, relatedProducts.length))}%)`,
               }}
             >
               {relatedProducts.length > 0 ? (
                 relatedProducts.map((product) => (
                   <motion.div
                     key={product._id}
-                    className="min-w-[33.333%] px-2"
+                    className={`px-2 ${
+                      relatedProducts.length === 1
+                        ? 'w-full md:w-1/3 mx-auto'
+                        : relatedProducts.length === 2
+                        ? 'w-1/2 md:w-1/3'
+                        : 'min-w-[33.333%]'
+                    }`}
                     onClick={() =>
                       navigate(`/detail`, {
                         state: { ...product },
                       })
                     }
                   >
-                    <div className="p-4 bg-gray-50 rounded-xl overflow-hidden shadow border border-gray-200 cursor-pointer">
+                    <div className="p-4 bg-gray-50 rounded-xl overflow-hidden shadow border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
                       <div className="relative aspect-square overflow-hidden bg-gray-50">
                         {product.images?.[0] && (
                           <img
@@ -367,13 +380,16 @@ const CardDetail = () => {
                   </motion.div>
                 ))
               ) : (
-                <p className="text-gray-600 text-sm">
-                  No related products available.
-                </p>
+                <div className="w-full text-center py-8">
+                  <p className="text-gray-600 text-sm">
+                    No related products available.
+                  </p>
+                </div>
               )}
             </motion.div>
           </div>
 
+          {/* Only show navigation buttons if there are more than 3 products */}
           {relatedProducts.length > 3 && (
             <>
               <button
