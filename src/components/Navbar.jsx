@@ -26,13 +26,13 @@ const Navbar = ({ onCategorySelect }) => {
 
   const locations = ['PCCOE', 'DYP', 'COEP'];
   const categories = [
-    { name: 'Textbooks', path: '/textbooks', category: 'textbooks' },
-    { name: 'Books', path: '/Books', category: 'Books' },
-    { name: 'Stationery', path: '/stationery', category: 'stationery' },
-    { name: 'Calculators', path: '/calculators', category: 'calculators' },
-    { name: 'Uniforms', path: '/uniforms', category: 'uniforms' }
+    { name: 'Books & Stationery', path: '/books-stationery', category: 'books-stationery' },
+    { name: 'Study Tools & Electronics', path: '/study-tools-electronics', category: 'study-tools-electronics' },
+    { name: 'Uniforms & Apparel', path: '/uniforms-apparel', category: 'uniforms-apparel' },
+    { name: 'Educational Accessories', path: '/educational-accessories', category: 'educational-accessories' },
+    { name: 'Other', path: '/other', category: 'other' }
   ];
-
+  
   const handleLocationSelect = (loc) => {
     setLocation(loc);
     setIsLocationDropdownOpen(false);
@@ -66,6 +66,7 @@ const Navbar = ({ onCategorySelect }) => {
     try {
       const url = `${process.env.REACT_APP_BACKEND}/api/search/cat/${category}`;
       const { resStatus, data, error } = await apiRequest(url, 'GET');
+      console.log(" resStatus -> ",resStatus);
       
       if (resStatus) {
         // Call the callback function to update products in parent component
@@ -77,6 +78,7 @@ const Navbar = ({ onCategorySelect }) => {
         navigate(`/${category}`);
       } else {
         showToast(error?.message || 'Failed to fetch products', 'error');
+        navigate('/');
       }
     } catch (err) {
       showToast('Error fetching products', 'error');

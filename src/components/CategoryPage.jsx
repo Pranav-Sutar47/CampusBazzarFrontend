@@ -2,17 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import apiRequest from '../utils/ApiRequest';
 import { showToast } from './ToastComponent';
-import ProductCard from './ProductCard'; // Assume you have this component
+import ProductDisplay from './ProductDisplay';
+
 
 const CategoryPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Extract parameters from URL
   const { category } = useParams();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const searchQuery = searchParams.get('q');
   const searchLocation = searchParams.get('location');
 
+  // Fetch products whenever category, searchQuery, or searchLocation changes
   useEffect(() => {
     fetchProducts();
   }, [category, searchQuery, searchLocation]);
@@ -21,21 +25,23 @@ const CategoryPage = () => {
     setLoading(true);
     try {
       let url;
+      // Determine URL based on search query or category
       if (searchQuery) {
-        // If we're on a search page
         url = `${process.env.REACT_APP_BACKEND}/api/posts/search?query=${encodeURIComponent(searchQuery)}`;
         if (searchLocation) {
           url += `&location=${encodeURIComponent(searchLocation)}`;
         }
       } else {
-        // If we're on a category page
         url = `${process.env.REACT_APP_BACKEND}/api/search/cat/${category}`;
       }
 
+      // Make API request and destructure the response
       const { resStatus, data, error } = await apiRequest(url, 'GET');
-      
+
+      // If the request was successful, update products
       if (resStatus) {
-        setProducts(data);
+        console.log("data  inside-> ", data)
+        setProducts(data.posts);
       } else {
         showToast(error?.message || 'Failed to fetch products', 'error');
       }
@@ -46,11 +52,13 @@ const CategoryPage = () => {
     }
   };
 
+  // Generate page title based on search query or category
   const getPageTitle = () => {
     if (searchQuery) {
       return `Search Results for "${searchQuery}"${searchLocation ? ` in ${searchLocation}` : ''}`;
     }
     
+    // Customize the title for each category
     switch(category) {
       case 'textbooks': return 'Textbooks';
       case 'notes': return 'Notes';
@@ -60,6 +68,8 @@ const CategoryPage = () => {
       default: return 'Products';
     }
   };
+
+  console.log("our products ---> ",products);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -71,9 +81,10 @@ const CategoryPage = () => {
         </div>
       ) : products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map(product => (
-            <ProductCard key={product._id} product={product} />
-          ))}
+         {products.map(product => (
+       <ProductDisplay key={product._id} product={product} />
+        ))}
+
         </div>
       ) : (
         <div className="text-center py-12">

@@ -10,19 +10,22 @@ const Tag = () => <span>🏷️</span>;
 const MapPin = () => <span>📍</span>;
 const Clock = () => <span>⏰</span>;
 
-const ProductCard = ({ 
-  _id, 
-  images, 
-  userId,
-  price, 
-  title, 
-  createdAt, 
-  category,
-  description,
-  likeCount,
-  isLiked = false,
-  isFeatured = false
-}) => {
+const ProductDisplay = ({ product }) => {
+  // Destructure product object
+  const {
+    _id,
+    images,
+    userId,
+    price,
+    title,
+    createdAt,
+    category,
+    description,
+    likeCount,
+    isLiked = false,
+    isFeatured = false,
+  } = product;
+
   const navigate = useNavigate();
   const [liked, setLiked] = useState(isLiked);
   const [isLiking, setIsLiking] = useState(false);
@@ -42,12 +45,14 @@ const ProductCard = ({
     });
   }, [createdAt]);
 
+  // Navigate to the detail page, passing the entire product as state
   const handleCardClick = () => {
+    // navigate(`/detail`, { state: { product } });
     navigate(`/detail`, { state: { images, price, title, createdAt, category, description, likeCount, userId, _id } });
+
   };
 
-  console.log(" description inside productCard --> ",description);
-
+  // Handle like button click
   const handleLikeClick = async (e) => {
     e.stopPropagation();
     const token = localStorage.getItem('token');
@@ -90,11 +95,11 @@ const ProductCard = ({
         className="relative flex flex-col rounded-xl overflow-hidden object-cover shadow-md cursor-pointer bg-white border border-gray-200 transition-transform"
       >
         {/* Image Section */}
-        <div className="relative aspect-square overflow-hidden bg-gray-50 ">
+        <div className="relative aspect-square overflow-hidden bg-gray-50">
           <motion.img 
-            src={ ""} 
+            src={images[0]} 
             alt={title} 
-            className="w-full h-full object-cover transition-opacity duration-300 contain ease-in-out"
+            className="w-full h-full object-cover transition-opacity duration-300 ease-in-out"
             loading="lazy"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
@@ -159,7 +164,7 @@ const ProductCard = ({
         </div>
       </motion.div>
 
-      {/* Modals with Smooth Animations */}
+      {/* Modals for Login/Signup */}
       {isLoginModalOpen && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
@@ -199,4 +204,4 @@ const ProductCard = ({
   );
 };
 
-export default ProductCard;
+export default ProductDisplay;

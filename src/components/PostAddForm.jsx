@@ -147,13 +147,12 @@ const PostAdForm = () => {
             className="w-full border p-2 rounded-lg"
             required
           >
-            <option value="">Select a category</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Pen">Pen & Pencil</option>
-            <option value="Bags">Bags</option>
-            <option value="Study Material">Study Material</option>
-            <option value="Cloths">Cloths</option>
-            <option value="Books">Books & Notebooks</option>
+ <option value="">Select a category</option>
+  <option value="books-stationery">Books &amp; Stationery</option>
+  <option value="study-tools-electronics">Study Tools &amp; Electronics</option>
+  <option value="uniforms-apparel">Uniforms &amp; Apparel</option>
+  <option value="educational-accessories">Educational Accessories</option>
+  <option value="other">Other</option>
           </select>
         </div>
         <div>
