@@ -12,15 +12,15 @@ const LoginModal = ({ isOpen, onClose, onSignupClick, error, loading, handleLogi
   
   const slides = [
     {
-      image: "https://statics.olx.in/external/base/img/loginEntryPointPost.webp",
+      image: "https://res.cloudinary.com/dailaa9bp/image/upload/v1741378898/uploads/ij8gkmqjw8zvduhiyiiq.jpg ",
       text: "Help us become one of the safest places to buy and sell"
     },
     {
-      image: "https://statics.olx.in/external/base/img/loginEntryPointFavorite.webp",
+      image: "https://res.cloudinary.com/dailaa9bp/image/upload/v1741378898/uploads/mldzl7pdy40wsr3eadux.jpg ",
       text: "Close deals from the comfort of your home"
     },
     {
-      image: "https://statics.olx.in/external/base/img/loginEntryPointChat.webp",
+      image: "https://res.cloudinary.com/dailaa9bp/image/upload/v1741378898/uploads/jcrcsfpzsueuvdeanphr.jpg ",
       text: "Keep all your favourites in one place"
     }
   ];

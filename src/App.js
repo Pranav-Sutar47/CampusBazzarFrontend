@@ -11,6 +11,7 @@ import UserProfile from './pages/UserProfile';
 import UserPosts from "./components/UserPosts";
 import LoginNew from "./components/LoginNew";
 import CategoryPage from './components/CategoryPage';
+import ChatComponent from "./pages/ChatComponent";
 
 function App() {
   
@@ -37,6 +38,8 @@ function App() {
         <Route path="/user-profile" element={<UserProfile/>} />
         <Route path="/my-posts" element={<UserPosts/>} />
         <Route path='/loginNew' element={<LoginNew/>} />
+        <Route path="/chat/:chatId" element={<ChatComponent />} />
+
         <Route path="/:category" element={<CategoryPage />} />
 
       </Routes>

@@ -1,17 +1,57 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, MessageCircle, ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+const sellerIcon ="https://res.cloudinary.com/drzydaw9o/image/upload/v1741380064/location-icon-vector-eps-10-600nw-2477930087-removebg-preview_hzsr9a.png";
+const buyerIcon ="https://res.cloudinary.com/drzydaw9o/image/upload/v1741379951/map-pin-icon-isolated-on-260nw-654682927-removebg-preview_1_jiaf0a.png";
+
+// Full page chat coming soon component
+const ChatComingSoon = ({ onBack, sellerName }) => {
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header with back button */}
+      <header className="bg-[#002f34] text-white p-4 shadow-md">
+        <div className="max-w-7xl mx-auto flex items-center">
+          <button 
+            onClick={onBack}
+            className="mr-4 hover:bg-white/10 p-2 rounded-full"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="text-xl font-semibold">Chat with {sellerName || "Seller"}</h1>
+        </div>
+      </header>
+      
+      {/* Content area */}
+      <div className="flex-grow flex flex-col items-center justify-center p-6 max-w-4xl mx-auto w-full">
+        <div className="w-full max-w-lg">
+          <img 
+            src="https://lh6.googleusercontent.com/proxy/d5ic8EViVASRN3q_uFkC8IQJ0x-WTCcXQvKXTpdRqZ2CjUkAz_kp-E7JpAlVJMTMuNF6DkUWm_eXcDWQzwRe0ENntTTsl63bHyb6" 
+            alt="Coming Soon" 
+            className="w-full h-auto rounded-lg shadow-lg mb-8"
+          />
+          
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Chat Feature Coming Soon</h2>
+            <p className="text-lg text-gray-600">
+              We are working hard to bring the feature to you soon
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CardDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state || {};
   
-
   const {
     images = [],
     price = 0,
@@ -28,6 +68,7 @@ const CardDetail = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [routeData, setRouteData] = useState(null);
   const [mapError, setMapError] = useState(null);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     if (!location.state) {
@@ -53,7 +94,6 @@ const CardDetail = () => {
   }, [_id]);
 
   // Function to fetch route data
-
   const fetchRouteData = async () => {
     try {
       let token = localStorage.getItem('token');
@@ -106,9 +146,18 @@ const CardDetail = () => {
     </div>
   );
 
+  const createCustomIcon = (iconUrl) => {
+    return L.icon({
+      iconUrl: iconUrl,
+      iconSize: [35, 35],
+      iconAnchor: [17, 35],
+      popupAnchor: [0, -35]
+    });
+  };
+
   // Update the map initialization useEffect
   useEffect(() => {
-    if (!routeData || !routeData.route) return;
+    if (!routeData || !routeData.route || showChat) return;
 
     try {
       const map = L.map("map");
@@ -117,17 +166,25 @@ const CardDetail = () => {
         attribution: "© OpenStreetMap contributors",
       }).addTo(map);
 
-      // Add markers for buyer and seller locations
+      // Create custom icons
+      const buyerMarkerIcon = createCustomIcon(buyerIcon);
+      const sellerMarkerIcon = createCustomIcon(sellerIcon);
+
+      // Add markers with custom icons
       if (routeData.buyerLocation) {
         const buyerAddress = localStorage.getItem('userAddress') || 'PCCOE';
-        L.marker([routeData.buyerLocation[0], routeData.buyerLocation[1]])
+        L.marker([routeData.buyerLocation[0], routeData.buyerLocation[1]], {
+          icon: buyerMarkerIcon
+        })
           .addTo(map)
           .bindPopup(`Buyer Location (${buyerAddress})`)
           .openPopup();
       }
 
       if (routeData.sellerLocation) {
-        L.marker([routeData.sellerLocation[0], routeData.sellerLocation[1]])
+        L.marker([routeData.sellerLocation[0], routeData.sellerLocation[1]], {
+          icon: sellerMarkerIcon
+        })
           .addTo(map)
           .bindPopup("Seller Location");
       }
@@ -162,7 +219,7 @@ const CardDetail = () => {
       console.error("Error initializing map:", error);
       setMapError("Failed to initialize map");
     }
-  }, [routeData]);
+  }, [routeData, showChat]);
 
   const nextImage = () => {
     setCurrentImage((prev) => (prev + 1) % images.length);
@@ -221,6 +278,26 @@ const CardDetail = () => {
       </div>
     );
   };
+
+  const handleStartChat = () => {
+    const isLoggedIn = !!localStorage.getItem('token');
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    // Show the chat page
+    setShowChat(true);
+  };
+
+  // If chat is shown, render the chat page instead of product details
+  if (showChat) {
+    return (
+      <ChatComingSoon 
+        onBack={() => setShowChat(false)} 
+        sellerName={userId?.name}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white p-8">
@@ -299,7 +376,7 @@ const CardDetail = () => {
         >
           {/* Seller Information - Moved from product details */}
           <motion.div
-            className="border-b border-gray-200 pt-4 "
+            className="border-b border-gray-200 pt-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.5 }}
@@ -314,9 +391,18 @@ const CardDetail = () => {
                 </p>
                 <p className="text-gray-500 text-sm">📅 {formattedDate}</p>
               </div>
-              <p className="text-gray-700 flex items-center">
-                📞 {userId?.mobileNo || "N/A"}
-              </p>
+              <div className="flex justify-between items-center">
+                <p className="text-gray-700 flex items-center">
+                  📞 {userId?.mobileNo || "N/A"}
+                </p>
+                <button 
+                  onClick={handleStartChat}
+                  className="flex items-center bg-[#002f34] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition"
+                >
+                  <MessageCircle size={16} className="mr-2" />
+                  Chat Now
+                </button>
+              </div>
               <p className="text-gray-500 flex items-center">
                 <MapPin size={14} className="mr-1 text-red-500" />{" "}
                 {userId?.address || "Location not available"}
@@ -327,8 +413,6 @@ const CardDetail = () => {
           {/* Map Section */}
           <div className="" ></div>
           {renderMap()}
-
-        
         </motion.div>
       </div>
 
