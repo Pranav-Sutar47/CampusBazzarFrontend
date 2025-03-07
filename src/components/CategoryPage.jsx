@@ -27,7 +27,6 @@ const CategoryPage = () => {
       let url;
       // Determine URL based on search query or category
       if (searchQuery) {
-        console.log("our search query --> ",searchQuery);
         url = `${process.env.REACT_APP_BACKEND}/api/posts/search/?query=${encodeURIComponent(searchQuery)}`;
       } else {
         url = `${process.env.REACT_APP_BACKEND}/api/search/cat/${category}`;
@@ -38,7 +37,6 @@ const CategoryPage = () => {
 
       // If the request was successful, update products
       if (resStatus) {
-        console.log("data  inside-> ", data)
         setProducts(data.posts);
       } else {
         showToast(error?.message || 'Failed to fetch products', 'error');
@@ -67,7 +65,6 @@ const CategoryPage = () => {
     }
   };
 
-  console.log("our products ---> ",products);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

@@ -47,7 +47,6 @@ const LoginModal = ({ isOpen, onClose, onSignupClick, error, loading, handleLogi
 
       let url = String(process.env.REACT_APP_BACKEND)
       url += '/api/auth/google'
-      console.log(url);
       // Send user data to backend
       const response = await axios.post(url, {
         name: user.displayName,
@@ -55,7 +54,6 @@ const LoginModal = ({ isOpen, onClose, onSignupClick, error, loading, handleLogi
         photo: user.photoURL,
       });
 
-      console.log(response.data);
       
       if(response.data.status){
         setLogin(true);

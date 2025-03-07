@@ -12,10 +12,8 @@ export default function AppState(props) {
       try{
         let url = process.env.REACT_APP_BACKEND + "/api/posts/get";
         const {resStatus,data,error} = await apiRequest(url,"GET",null);
-        console.log("data",resStatus);
         if(resStatus && data && data.posts.length > 0){
           setProducts(data.posts);
-          console.log("data",data.posts);
         }else{
           setProducts([]);
         }

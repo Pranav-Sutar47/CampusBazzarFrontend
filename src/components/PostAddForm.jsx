@@ -82,7 +82,6 @@ const PostAdForm = () => {
       );
 
       const result = await response.json();
-      console.log("Response:", result);
 
       if (response.ok) {
         // toast.success("Ad Posted Successfully!");

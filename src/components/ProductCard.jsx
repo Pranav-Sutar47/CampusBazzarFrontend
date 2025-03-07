@@ -46,7 +46,6 @@ const ProductCard = ({
     navigate(`/detail`, { state: { images, price, title, createdAt, category, description, likeCount, userId, _id } });
   };
 
-  console.log(" description inside productCard --> ",description);
 
   const handleLikeClick = async (e) => {
     e.stopPropagation();

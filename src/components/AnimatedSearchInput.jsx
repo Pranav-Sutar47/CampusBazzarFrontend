@@ -17,6 +17,7 @@ const AnimatedSearchInput = ({ searchQuery, setSearchQuery }) => {
   const [placeholder, setPlaceholder] = useState(`Find ${suggestions[0]}...`);
 
   useEffect(() => {
+    console.log("animated search input use effect" , searchQuery);
     let index = 0;
     const intervalId = setInterval(() => {
       index = (index + 1) % suggestions.length;
@@ -29,21 +30,22 @@ const AnimatedSearchInput = ({ searchQuery, setSearchQuery }) => {
   // Function to hit the search API
   const handleSearch = async (e) => {
     e.preventDefault();
+
+    console.log("search in animated search input ++");
     if (!searchQuery.trim()) return;
 
     try {
       // Adjust the URL if needed (for instance, adding a base URL or a prefix like "/api")
+      console.log("searching , ",searchQuery);
       const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/search?title=${encodeURIComponent(searchQuery)}`);
       const data = await response.json();
 
-      console.log("searchign data --> ",data);
 
       if (data.status) {
         setProducts(data.posts);
       } else {
         // Optionally handle the case where no matching posts are found
         setProducts([]);
-        console.log(data.message);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -51,7 +53,7 @@ const AnimatedSearchInput = ({ searchQuery, setSearchQuery }) => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="flex flex-grow items-center">
+    <form onSubmit={(event)=>handleSearch(event)} className="flex flex-grow items-center">
       <input 
         type="text" 
         placeholder={placeholder}

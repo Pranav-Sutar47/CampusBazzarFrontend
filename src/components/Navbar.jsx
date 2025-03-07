@@ -21,7 +21,7 @@ const Navbar = ({ onCategorySelect }) => {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(true);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const routeLocation = useLocation();
 
@@ -67,7 +67,6 @@ const Navbar = ({ onCategorySelect }) => {
     try {
       const url = `${process.env.REACT_APP_BACKEND}/api/search/cat/${category}`;
       const { resStatus, data, error } = await apiRequest(url, 'GET');
-      console.log(" resStatus -> ",resStatus);
       
       if (resStatus) {
         // Call the callback function to update products in parent component
@@ -219,15 +218,15 @@ const Navbar = ({ onCategorySelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = async (e) => {
+    console.log("seraching in navbar");
     e.preventDefault();
     if (searchQuery.trim()) {
       try {
         
-        console.log("hitting search  on ",searchQuery);
 
         const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/search?title=${encodeURIComponent(searchQuery)}`);
+        console.log("serach res ->",response);
 
-        console.log("response --> ",response);
         if (response.status) {
           // Call the callback function to update products in parent component
           if (onCategorySelect && typeof onCategorySelect === 'function') {
@@ -243,6 +242,17 @@ const Navbar = ({ onCategorySelect }) => {
         showToast('Error searching products', 'error');
       }
     }
+  };
+
+  // Update these navigation handlers
+  const handleProfileClick = () => {
+    setIsUserDropdownOpen(false); // Close dropdown before navigation
+    navigate('/user-profile');
+  };
+
+  const handleMyPostsClick = () => {
+    setIsUserDropdownOpen(false); // Close dropdown before navigation
+    navigate('/my-posts');
   };
 
   return (
@@ -271,7 +281,7 @@ const Navbar = ({ onCategorySelect }) => {
             
             {/* Desktop Search and Location */}
             <div className="hidden md:flex flex-grow mx-6">
-              <form className="flex w-full" onSubmit={handleSearch}>
+              <form className="flex w-full" onSubmit={(e)=>handleSearch(e)}>
                 {/* Location selector */}
                 <div className="relative">
                   <div 
@@ -300,22 +310,6 @@ const Navbar = ({ onCategorySelect }) => {
                   )}
                 </div>
                 
-                {/* Search input */}
-                {/* <div className="flex flex-grow items-center">
-                  <input 
-                    type="text" 
-                    placeholder="Find Cars, Mobile Phones and more..."
-                    className="w-full border-2 border-r-0 py-2 px-4 outline-none focus:border-[#23e5db]"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button 
-                    type="submit"
-                    className="bg-[#002f34] border-2 border-[#002f34] p-2 rounded-r-md"
-                  >
-                    <Search size={22} className="text-white" />
-                  </button>
-                </div> */}
                    <AnimatedSearchInput searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
               </form>
@@ -346,18 +340,18 @@ const Navbar = ({ onCategorySelect }) => {
                   {/* Dropdown Menu */}
                   {isUserDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-20">
-                      <Link 
-                        to="/user-profile" 
+                      <button 
+                        onClick={handleProfileClick}
                         className="block px-4 py-2 w-full text-left hover:bg-gray-100"
                       >
                         Profile
-                      </Link>
-                      <Link 
-                        to="/my-posts" 
+                      </button>
+                      <button 
+                        onClick={handleMyPostsClick}
                         className="block px-4 py-2 w-full text-left hover:bg-gray-100"
                       >
                         My Posts
-                      </Link>
+                      </button>
                       <button 
                         onClick={handleLogout}
                         className="block px-4 py-2 w-full text-left text-red-600 hover:bg-gray-100"
@@ -382,7 +376,7 @@ const Navbar = ({ onCategorySelect }) => {
           
           {/* Mobile Search - visible on mobile only */}
           <div className="mt-3 md:hidden">
-            <form className="flex w-full" onSubmit={handleSearch}>
+            <form className="flex w-full" onSubmit={(e)=>handleSearch(e)}>
               <input 
                 type="text" 
                 placeholder="Search..."
@@ -425,19 +419,13 @@ const Navbar = ({ onCategorySelect }) => {
                     {isUserDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-20">
                         <button
-                          onClick={() => {
-                            setIsUserDropdownOpen(false); 
-                            navigate('/user-profile');
-                          }}
+                          onClick={handleProfileClick}
                           className="block px-4 py-2 w-full text-left hover:bg-gray-100"
                         >
                           Profile
                         </button>
                         <button
-                          onClick={() => {
-                            setIsUserDropdownOpen(false);
-                            navigate('/my-posts');
-                          }}
+                          onClick={handleMyPostsClick}
                           className="block px-4 py-2 w-full text-left hover:bg-gray-100"
                         >
                           My Posts

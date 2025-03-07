@@ -62,6 +62,7 @@ const CardDetail = () => {
   
   const [currentImage, setCurrentImage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
   
   useEffect(() => {
     if (!location.state) {
@@ -71,13 +72,11 @@ const CardDetail = () => {
   
   // Fetch similar posts using axios
   useEffect(() => {
-    console.log("Fetching similar products for _id:", _id);
     if (_id) {
       axios
         .get(`${process.env.REACT_APP_BACKEND}/api/posts/getSimilarPost/${_id}`)
         .then((response) => {
           const data = response.data;
-          console.log("Similar products data:", data);
           if (data.status) {
             setRelatedProducts(data.data);
           } else {
@@ -94,6 +93,18 @@ const CardDetail = () => {
   
   const prevImage = () => {
     setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+  };
+  
+  const nextSlide = () => {
+    setCurrentSlide((prev) => 
+      currentSlide >= relatedProducts.length - 3 ? 0 : prev + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => 
+      currentSlide <= 0 ? relatedProducts.length - 3 : prev - 1
+    );
   };
   
   const formattedDate = useMemo(() => {
@@ -191,16 +202,68 @@ const CardDetail = () => {
         </motion.div>
       </motion.div>
       
-      {/* Related Products */}
+      {/* Related Products Carousel */}
       <div className="max-w-5xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-        <h3 className="text-2xl font-bold text-gray-800 mb-4">Related Products</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {relatedProducts.length > 0 ? (
-            relatedProducts.map((prod) => (
-              <RelatedProductCard key={prod._id || prod.id} product={prod} />
-            ))
-          ) : (
-            <p className="text-gray-600 text-sm">No related products available.</p>
+        <h3 className="text-2xl font-bold text-gray-800 mb-4">Similar Products</h3>
+        <div className="relative">
+          <div className="overflow-hidden">
+            <motion.div 
+              className="flex transition-all duration-300 ease-in-out"
+              style={{
+                transform: `translateX(-${currentSlide * (100 / 3)}%)`,
+              }}
+            >
+              {relatedProducts.length > 0 ? (
+                relatedProducts.map((product) => (
+                  <motion.div
+                    key={product._id}
+                    className="min-w-[33.333%] px-2"
+                    onClick={() =>
+                      navigate(`/detail`, {
+                        state: { ...product },
+                      })
+                    }
+                  >
+                    <div className="p-4 bg-gray-50 rounded-xl overflow-hidden shadow border border-gray-200 cursor-pointer">
+                      <div className="relative aspect-square overflow-hidden bg-gray-50">
+                        {product.images?.[0] && (
+                          <img
+                            src={product.images[0]}
+                            alt={product.title}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                      <div className="p-2">
+                        <h4 className="text-gray-800 font-semibold text-base line-clamp-2">
+                          {product.title}
+                        </h4>
+                        <p className="text-gray-600 text-sm mt-1">₹{product.price}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <p className="text-gray-600 text-sm">No related products available.</p>
+              )}
+            </motion.div>
+          </div>
+          
+          {relatedProducts.length > 3 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-gray-900 text-white p-2 rounded-full shadow hover:bg-gray-700 transition z-10"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-gray-900 text-white p-2 rounded-full shadow hover:bg-gray-700 transition z-10"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </>
           )}
         </div>
       </div>

@@ -9,7 +9,6 @@ export default async function apiRequest(url,method='GET',headers={},body=null){
             data:body
         });
  
-        // console.log(response);
 
         return{
             resStatus : true,

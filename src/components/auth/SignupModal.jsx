@@ -33,7 +33,6 @@ const SignupModal = ({ isOpen, onClose, onLoginClick, error, loading, handleSign
     
     const otpCode = generateOtp();
     setGeneratedOtp(otpCode);
-    console.log("otp ->" ,otpCode);
     try {
       await emailjs.send(
         "service_mqpf8nm",
