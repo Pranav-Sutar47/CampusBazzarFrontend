@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Search } from 'lucide-react';
 import AppContext from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 const AnimatedSearchInput = ({ searchQuery, setSearchQuery }) => {
   const { setProducts } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const suggestions = [
     'Textbooks',
@@ -16,8 +18,8 @@ const AnimatedSearchInput = ({ searchQuery, setSearchQuery }) => {
 
   const [placeholder, setPlaceholder] = useState(`Find ${suggestions[0]}...`);
 
+  // Handle animated placeholder text
   useEffect(() => {
-    console.log("animated search input use effect" , searchQuery);
     let index = 0;
     const intervalId = setInterval(() => {
       index = (index + 1) % suggestions.length;
@@ -27,43 +29,78 @@ const AnimatedSearchInput = ({ searchQuery, setSearchQuery }) => {
     return () => clearInterval(intervalId);
   }, [suggestions]);
 
-  // Function to hit the search API
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  // Function to fetch all products
+  const fetchAllProducts = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND}/api/posts/get?page=1&limit=12`
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setProducts(data);
+      }
+      navigate('/');
+    } catch (error) {
+      console.error("Error fetching all products:", error);
+    }
+  };
 
-    console.log("search in animated search input ++");
-    if (!searchQuery.trim()) return;
+  // Function to handle search API call
+  const handleSearch = async () => {
+    
+    if (!searchQuery.trim()) {
+      // If search query is empty, fetch all products and redirect to home
+      await fetchAllProducts();
+      return;
+    }
 
     try {
-      // Adjust the URL if needed (for instance, adding a base URL or a prefix like "/api")
-      console.log("searching , ",searchQuery);
-      const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/search?title=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND}/api/search?title=${encodeURIComponent(searchQuery)}`
+      );
       const data = await response.json();
-
 
       if (data.status) {
         setProducts(data.posts);
       } else {
-        // Optionally handle the case where no matching posts are found
         setProducts([]);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
+      setProducts([]);
     }
   };
 
+  // Handle input change
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // If input becomes empty, fetch all products and redirect
+    if (!value.trim()) {
+      fetchAllProducts();
+    }
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleSearch();
+  };
+
   return (
-    <form onSubmit={(event)=>handleSearch(event)} className="flex flex-grow items-center">
+    <form onSubmit={handleSubmit} className="flex flex-grow items-center">
       <input 
         type="text" 
         placeholder={placeholder}
         className="w-full border-2 border-r-0 py-2 px-4 outline-none focus:border-[#23e5db] transition-all duration-200"
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)} 
+        onChange={handleInputChange}
       />
       <button 
         type="submit"
-        className="bg-[#002f34] border-2 border-[#002f34] p-2 rounded-r-md"
+        className="bg-[#002f34] border-2 border-[#002f34] p-2 rounded-r-md hover:bg-[#003f44] transition-colors duration-200"
+        onClick={handleSubmit}
       >
         <Search size={22} className="text-white" />
       </button>
