@@ -27,10 +27,8 @@ const CategoryPage = () => {
       let url;
       // Determine URL based on search query or category
       if (searchQuery) {
-        url = `${process.env.REACT_APP_BACKEND}/api/posts/search?query=${encodeURIComponent(searchQuery)}`;
-        if (searchLocation) {
-          url += `&location=${encodeURIComponent(searchLocation)}`;
-        }
+        console.log("our search query --> ",searchQuery);
+        url = `${process.env.REACT_APP_BACKEND}/api/posts/search/?query=${encodeURIComponent(searchQuery)}`;
       } else {
         url = `${process.env.REACT_APP_BACKEND}/api/search/cat/${category}`;
       }

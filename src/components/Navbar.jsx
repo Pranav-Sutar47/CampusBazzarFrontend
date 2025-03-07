@@ -222,13 +222,16 @@ const Navbar = ({ onCategorySelect }) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       try {
-        const url = `${process.env.REACT_APP_BACKEND}/api/posts/search?query=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(location)}`;
-        const { resStatus, data, error } = await apiRequest(url, 'GET');
         
-        if (resStatus) {
+        console.log("hitting search  on ",searchQuery);
+
+        const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/search?title=${encodeURIComponent(searchQuery)}`);
+
+        console.log("response --> ",response);
+        if (response.status) {
           // Call the callback function to update products in parent component
           if (onCategorySelect && typeof onCategorySelect === 'function') {
-            onCategorySelect(data, 'search-results');
+            onCategorySelect(response, 'search-results');
           }
           
           // Navigate to search results page
