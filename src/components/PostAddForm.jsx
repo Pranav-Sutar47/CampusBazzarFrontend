@@ -8,7 +8,7 @@ import apiRequest from "../utils/ApiRequest";
 const PostAdForm = () => {
   const [formData, setFormData] = useState({
     title: "",
-    price: 0,
+    price:0,
     description: "",
     category: "",
     images: null,
@@ -174,7 +174,7 @@ const PostAdForm = () => {
           {loading ? (
             <div className="spinner border-t-4 border-blue-500 border-solid rounded-full h-5 w-5 animate-spin"></div>
           ) : (
-            "Post Ad"
+            "Post Add"
           )}
         </button>
       </form>
