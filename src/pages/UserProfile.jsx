@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import Spinner from '../components/Spinner';
 
 const UserProfile = () => {
   const [userInfo, setUserInfo] = useState({
@@ -201,7 +202,7 @@ const UserProfile = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return <Spinner></Spinner>;
   }
 
   if (error) {
