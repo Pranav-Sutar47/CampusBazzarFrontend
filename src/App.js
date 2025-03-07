@@ -12,6 +12,7 @@ import UserPosts from "./components/UserPosts";
 import LoginNew from "./components/LoginNew";
 
 function App() {
+  
   return (
     <div>
       <ToastContainer
@@ -28,7 +29,7 @@ function App() {
       />
       <Navbar />
       <Routes>
-        
+
         <Route path="/" element={<ProductList />} />
         <Route path="/detail" element={<CardDetail/>} />
         <Route path="/post-ad" element={<PostAdForm/>} />
@@ -42,3 +43,4 @@ function App() {
 }
 
 export default App;
+

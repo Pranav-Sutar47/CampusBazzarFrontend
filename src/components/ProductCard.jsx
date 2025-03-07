@@ -85,14 +85,14 @@ const ProductCard = ({
         onClick={handleCardClick} 
         whileHover={{ scale: 1.03, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)", y: -3 }}
         transition={{ duration: 0.3 }}
-        className="relative flex flex-col rounded-xl overflow-hidden shadow-md cursor-pointer bg-white border border-gray-200 transition-transform"
+        className="relative flex flex-col rounded-xl overflow-hidden object-cover shadow-md cursor-pointer bg-white border border-gray-200 transition-transform"
       >
         {/* Image Section */}
-        <div className="relative aspect-square overflow-hidden bg-gray-50">
+        <div className="relative aspect-square overflow-hidden bg-gray-50 ">
           <motion.img 
             src={images[0]} 
             alt={title} 
-            className="w-full h-full object-cover transition-opacity duration-300 ease-in-out"
+            className="w-full h-full object-cover transition-opacity duration-300 contain ease-in-out"
             loading="lazy"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
