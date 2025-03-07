@@ -92,7 +92,7 @@ const ProductCard = ({
         {/* Image Section */}
         <div className="relative aspect-square overflow-hidden bg-gray-50 ">
           <motion.img 
-            src={ ""} 
+            src={images[0]} 
             alt={title} 
             className="w-full h-full object-cover transition-opacity duration-300 contain ease-in-out"
             loading="lazy"

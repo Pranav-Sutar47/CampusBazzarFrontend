@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { Search, Plus, ChevronDown, Heart, User, Menu, X, LogOut } from 'lucide-react';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
+import AnimatedSearchInput from './AnimatedSearchInput';
 
 import LoginModal from './auth/LoginModal';
 import SignupModal from './auth/SignupModal';
@@ -12,7 +13,7 @@ import { showToast } from './ToastComponent';
 
 const Navbar = ({ onCategorySelect }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [location, setLocation] = useState('India');
+  const [location, setLocation] = useState('PCCOE');
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
@@ -297,7 +298,7 @@ const Navbar = ({ onCategorySelect }) => {
                 </div>
                 
                 {/* Search input */}
-                <div className="flex flex-grow items-center">
+                {/* <div className="flex flex-grow items-center">
                   <input 
                     type="text" 
                     placeholder="Find Cars, Mobile Phones and more..."
@@ -311,7 +312,9 @@ const Navbar = ({ onCategorySelect }) => {
                   >
                     <Search size={22} className="text-white" />
                   </button>
-                </div>
+                </div> */}
+                   <AnimatedSearchInput searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
               </form>
             </div>
             
