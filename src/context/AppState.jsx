@@ -25,7 +25,7 @@ export default function AppState(props) {
     }
 
     return (
-    <AppContext.Provider value={{login,setLogin,products,fetchProducts}}>
+    <AppContext.Provider value={{login,setLogin,products,setProducts,fetchProducts}}>
         {props.children}
     </AppContext.Provider>
   )
