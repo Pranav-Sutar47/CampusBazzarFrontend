@@ -12,6 +12,7 @@ import UserPosts from "./components/UserPosts";
 import LoginNew from "./components/LoginNew";
 import CategoryPage from './components/CategoryPage';
 import ChatComponent from "./pages/ChatComponent";
+import Recommendation from "./components/Recommendation";
 
 function App() {
   
@@ -39,7 +40,8 @@ function App() {
         <Route path="/my-posts" element={<UserPosts/>} />
         <Route path='/loginNew' element={<LoginNew/>} />
         <Route path="/chat/:chatId" element={<ChatComponent />} />
-
+        <Route path="/recommendation" element={<Recommendation />} />
+        
         <Route path="/:category" element={<CategoryPage />} />
 
       </Routes>

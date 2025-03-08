@@ -459,6 +459,14 @@ const Navbar = ({ onCategorySelect }) => {
       <div className="w-full border-b bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center overflow-x-auto py-2 space-x-6 text-sm no-scrollbar">
+
+          <a 
+               
+                href={'/recommendation'}
+                className={`whitespace-nowrap font-medium `}
+              >
+                Recommendations
+              </a>
             {categories.map((category) => (
               <a 
                 key={category.path}
