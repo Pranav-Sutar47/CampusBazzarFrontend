@@ -20,18 +20,18 @@ const ProductCard = ({
   category,
   description,
   likeCount,
-  isLiked = false,
+  isLiked: initialIsLiked = false,
   isFeatured = false
 }) => {
   const navigate = useNavigate();
-  const [liked, setLiked] = useState(isLiked);
+  const [liked, setLiked] = useState(initialIsLiked);
   const [isLiking, setIsLiking] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
 
   useEffect(() => {
-    setLiked(isLiked);
-  }, [isLiked]);
+    setLiked(initialIsLiked);
+  }, [initialIsLiked]);
 
   // Optimized Date Formatting
   const formattedDate = useMemo(() => {
@@ -46,41 +46,47 @@ const ProductCard = ({
     navigate(`/detail`, { state: { images, price, title, createdAt, category, description, likeCount, userId, _id } });
   };
 
-
   const handleLikeClick = async (e) => {
     e.stopPropagation();
+
+    console.log("clciked");
+
     const token = localStorage.getItem('token');
     if (!token) {
       setIsLoginModalOpen(true);
       return;
     }
-    if (isLiking || liked) return;
+    
     setIsLiking(true);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND}/api/posts/likePost/${_id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND}/api/posts/likePost/${_id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         }
-      });
+      );
 
       if (response.ok) {
-        setLiked(true);
-        toast.success('Product added to favorites!');
+        setLiked(!liked);
+        toast.success(liked ? 'Removed from favorites' : 'Added to favorites!');
+        
+        // Trigger refresh of liked posts in ProductList
+        window.dispatchEvent(new CustomEvent('likedPostsUpdated'));
       } else {
         const errorData = await response.json();
-        toast.error(errorData.message || 'Failed to add to favorites');
+        toast.error(errorData.message || `Failed to ${liked ? 'remove from' : 'add to'} favorites`);
       }
     } catch (error) {
+      console.error('Error handling like:', error);
       toast.error('Something went wrong. Please try again.');
     } finally {
       setIsLiking(false);
     }
   };
-
-
 
   return (
     <>
@@ -104,7 +110,6 @@ const ProductCard = ({
           {/* Like Button */}
           <motion.button 
             onClick={handleLikeClick}
-            disabled={liked || isLiking}
             whileTap={{ scale: 0.85 }}
             whileHover={{ scale: 1.1 }}
             className={`absolute top-3 right-3 p-2 rounded-full ${liked ? 'bg-red-50' : 'bg-white'} shadow-md hover:shadow-lg transition-all duration-200`}
