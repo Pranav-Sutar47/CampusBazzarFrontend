@@ -1,13 +1,21 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { ChevronLeft, ChevronRight, MapPin, MessageCircle, ArrowLeft } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  MessageCircle,
+  ArrowLeft,
+} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-const sellerIcon ="https://res.cloudinary.com/drzydaw9o/image/upload/v1741380064/location-icon-vector-eps-10-600nw-2477930087-removebg-preview_hzsr9a.png";
-const buyerIcon ="https://res.cloudinary.com/drzydaw9o/image/upload/v1741379951/map-pin-icon-isolated-on-260nw-654682927-removebg-preview_1_jiaf0a.png";
+const sellerIcon =
+  "https://res.cloudinary.com/drzydaw9o/image/upload/v1741380064/location-icon-vector-eps-10-600nw-2477930087-removebg-preview_hzsr9a.png";
+const buyerIcon =
+  "https://res.cloudinary.com/drzydaw9o/image/upload/v1741379951/map-pin-icon-isolated-on-260nw-654682927-removebg-preview_1_jiaf0a.png";
 
 // Full page chat coming soon component
 const ChatComingSoon = ({ onBack, sellerName }) => {
@@ -16,27 +24,31 @@ const ChatComingSoon = ({ onBack, sellerName }) => {
       {/* Header with back button */}
       <header className="bg-[#002f34] text-white p-4 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center">
-          <button 
+          <button
             onClick={onBack}
             className="mr-4 hover:bg-white/10 p-2 rounded-full"
           >
             <ArrowLeft size={24} />
           </button>
-          <h1 className="text-xl font-semibold">Chat with {sellerName || "Seller"}</h1>
+          <h1 className="text-xl font-semibold">
+            Chat with {sellerName || "Seller"}
+          </h1>
         </div>
       </header>
-      
+
       {/* Content area */}
       <div className="flex-grow flex flex-col items-center justify-center p-6 max-w-4xl mx-auto w-full">
         <div className="w-full max-w-lg">
-          <img 
-            src="https://lh6.googleusercontent.com/proxy/d5ic8EViVASRN3q_uFkC8IQJ0x-WTCcXQvKXTpdRqZ2CjUkAz_kp-E7JpAlVJMTMuNF6DkUWm_eXcDWQzwRe0ENntTTsl63bHyb6" 
-            alt="Coming Soon" 
+          <img
+            src="https://lh6.googleusercontent.com/proxy/d5ic8EViVASRN3q_uFkC8IQJ0x-WTCcXQvKXTpdRqZ2CjUkAz_kp-E7JpAlVJMTMuNF6DkUWm_eXcDWQzwRe0ENntTTsl63bHyb6"
+            alt="Coming Soon"
             className="w-full h-auto rounded-lg shadow-lg mb-8"
           />
-          
+
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Chat Feature Coming Soon</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Chat Feature Coming Soon
+            </h2>
             <p className="text-lg text-gray-600">
               We are working hard to bring the feature to you soon
             </p>
@@ -51,7 +63,7 @@ const CardDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state || {};
-  
+
   const {
     images = [],
     price = 0,
@@ -89,15 +101,17 @@ const CardDetail = () => {
             console.error("Failed to fetch similar posts");
           }
         })
-        .catch((error) => console.error("Error fetching similar posts:", error));
+        .catch((error) =>
+          console.error("Error fetching similar posts:", error)
+        );
     }
   }, [_id]);
 
   // Function to fetch route data
   const fetchRouteData = async () => {
     try {
-      let token = localStorage.getItem('token');
-      const buyerAddress = localStorage.getItem('userAddress') || 'PCCOE';
+      let token = localStorage.getItem("token");
+      const buyerAddress = localStorage.getItem("userAddress") || "PCCOE";
 
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND}/api/search/getPath`,
@@ -108,7 +122,7 @@ const CardDetail = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-          }
+          },
         }
       );
       if (response.status) {
@@ -133,14 +147,16 @@ const CardDetail = () => {
   // Add a new component for the blurred map
   const BlurredMap = () => (
     <div className="relative">
-      <div className="h-[300px] rounded-xl overflow-hidden filter blur-sm bg-gray-200">
+      <div className="h-[300px] rounded-xl overflow-hidden filter blur-sm bg-gray-200 z-10">
         {/* Placeholder map image or gradient */}
-        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400" />
+        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 " />
       </div>
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center ">
         <div className="bg-white/90 px-6 py-4 rounded-lg shadow-lg text-center">
           <p className="text-gray-800 font-semibold mb-2">Login Required</p>
-          <p className="text-sm text-gray-600">Please login to view the route map</p>
+          <p className="text-sm text-gray-600">
+            Please login to view the route map
+          </p>
         </div>
       </div>
     </div>
@@ -151,7 +167,7 @@ const CardDetail = () => {
       iconUrl: iconUrl,
       iconSize: [35, 35],
       iconAnchor: [17, 35],
-      popupAnchor: [0, -35]
+      popupAnchor: [0, -35],
     });
   };
 
@@ -172,9 +188,9 @@ const CardDetail = () => {
 
       // Add markers with custom icons
       if (routeData.buyerLocation) {
-        const buyerAddress = localStorage.getItem('userAddress') || 'PCCOE';
+        const buyerAddress = localStorage.getItem("userAddress") || "PCCOE";
         L.marker([routeData.buyerLocation[0], routeData.buyerLocation[1]], {
-          icon: buyerMarkerIcon
+          icon: buyerMarkerIcon,
         })
           .addTo(map)
           .bindPopup(`Buyer Location (${buyerAddress})`)
@@ -183,7 +199,7 @@ const CardDetail = () => {
 
       if (routeData.sellerLocation) {
         L.marker([routeData.sellerLocation[0], routeData.sellerLocation[1]], {
-          icon: sellerMarkerIcon
+          icon: sellerMarkerIcon,
         })
           .addTo(map)
           .bindPopup("Seller Location");
@@ -193,14 +209,14 @@ const CardDetail = () => {
       const coordinates = routeData.route.features[0].geometry.coordinates;
       if (coordinates && coordinates.length > 0) {
         // Convert coordinates from [lng, lat] to [lat, lng] format
-        const latLngs = coordinates.map(coord => [coord[1], coord[0]]);
+        const latLngs = coordinates.map((coord) => [coord[1], coord[0]]);
 
         // Draw the route polyline
         const routePolyline = L.polyline(latLngs, {
           color: "#3b82f6",
           weight: 4,
           opacity: 0.8,
-          lineJoin: 'round'
+          lineJoin: "round",
         }).addTo(map);
 
         // Set bounds using the bbox from the route
@@ -257,7 +273,7 @@ const CardDetail = () => {
 
   // Update the renderMap function
   const renderMap = () => {
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!localStorage.getItem("token");
 
     return (
       <div>
@@ -265,7 +281,7 @@ const CardDetail = () => {
         {!isLoggedIn ? (
           <BlurredMap />
         ) : mapError ? (
-          <div className="h-[300px] rounded-xl bg-gray-100 flex items-center justify-center">
+          <div className="h-[300px] rounded-xl bg-gray-100 flex items-center justify-center ">
             <p className="text-red-500">{mapError}</p>
           </div>
         ) : !routeData ? (
@@ -273,16 +289,19 @@ const CardDetail = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <div id="map" className="h-[300px] rounded-xl overflow-hidden"></div>
+          <div
+            id="map"
+            className="h-[300px] rounded-xl overflow-hidden z-10"
+          ></div>
         )}
       </div>
     );
   };
 
   const handleStartChat = () => {
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!localStorage.getItem("token");
     if (!isLoggedIn) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     // Show the chat page
@@ -292,8 +311,8 @@ const CardDetail = () => {
   // If chat is shown, render the chat page instead of product details
   if (showChat) {
     return (
-      <ChatComingSoon 
-        onBack={() => setShowChat(false)} 
+      <ChatComingSoon
+        onBack={() => setShowChat(false)}
         sellerName={userId?.name}
       />
     );
@@ -368,7 +387,7 @@ const CardDetail = () => {
         </motion.div>
 
         {/* Right Side - Map with Seller Information below */}
-        <motion.div 
+        <motion.div
           className="bg-white shadow-lg rounded-xl p-4 pb-2 border border-gray-200 space-y-4"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -395,7 +414,7 @@ const CardDetail = () => {
                 <p className="text-gray-700 flex items-center">
                   📞 {userId?.mobileNo || "N/A"}
                 </p>
-                <button 
+                <button
                   onClick={handleStartChat}
                   className="flex items-center bg-[#002f34] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition"
                 >
@@ -409,22 +428,26 @@ const CardDetail = () => {
               </p>
             </div>
           </motion.div>
-          
+
           {/* Map Section */}
-          <div className="" ></div>
+          <div className=""></div>
           {renderMap()}
         </motion.div>
       </div>
 
       {/* Related Products Section - Full Width Below */}
       <div className="max-w-7xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-        <h3 className="text-2xl font-bold text-gray-800 mb-4">Similar Products</h3>
+        <h3 className="text-2xl font-bold text-gray-800 mb-4">
+          Similar Products
+        </h3>
         <div className="relative">
           <div className="overflow-hidden">
             <motion.div
               className="flex transition-all duration-300 ease-in-out"
               style={{
-                transform: `translateX(-${currentSlide * (100 / Math.min(3, relatedProducts.length))}%)`,
+                transform: `translateX(-${
+                  currentSlide * (100 / Math.min(3, relatedProducts.length))
+                }%)`,
               }}
             >
               {relatedProducts.length > 0 ? (
@@ -433,10 +456,10 @@ const CardDetail = () => {
                     key={product._id}
                     className={`px-2 ${
                       relatedProducts.length === 1
-                        ? 'w-full md:w-1/3 mx-auto'
+                        ? "w-full md:w-1/3 mx-auto"
                         : relatedProducts.length === 2
-                        ? 'w-1/2 md:w-1/3'
-                        : 'min-w-[33.333%]'
+                        ? "w-1/2 md:w-1/3"
+                        : "min-w-[33.333%]"
                     }`}
                     onClick={() =>
                       navigate(`/detail`, {
@@ -458,7 +481,9 @@ const CardDetail = () => {
                         <h4 className="text-gray-800 font-semibold text-base line-clamp-2">
                           {product.title}
                         </h4>
-                        <p className="text-gray-600 text-sm mt-1">₹{product.price}</p>
+                        <p className="text-gray-600 text-sm mt-1">
+                          ₹{product.price}
+                        </p>
                       </div>
                     </div>
                   </motion.div>
